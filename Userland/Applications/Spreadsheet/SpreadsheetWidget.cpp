@@ -217,7 +217,7 @@ SpreadsheetWidget::SpreadsheetWidget(GUI::Window& parent_window, Vector<NonnullR
             undo_stack().push(make<CellsUndoCommand>(cell_changes));
         } else {
             for (auto& cell : sheet.selected_cells())
-                sheet.ensure(cell).set_data(StringView { data.data.data(), data.data.size() });
+                sheet.ensure(cell).set_data(String::from_utf8(StringView { data.data.data(), data.data.size() }).release_value_but_fixme_should_propagate_errors());
             update();
         }
     },
@@ -241,7 +241,7 @@ SpreadsheetWidget::SpreadsheetWidget(GUI::Window& parent_window, Vector<NonnullR
         }
         auto& sheet = *worksheet_ptr;
         for (auto& cell : sheet.selected_cells())
-            sheet.ensure(cell).set_data(emoji_code_point);
+            sheet.ensure(cell).set_data(String::from_deprecated_string(emoji_code_point).release_value_but_fixme_should_propagate_errors());
 
         update();
     },
@@ -382,7 +382,7 @@ void SpreadsheetWidget::setup_tabs(Vector<NonnullRefPtr<Sheet>> new_sheets)
                     // FIXME: Lines?
                     auto offset = m_cell_value_editor->cursor().column();
                     try_generate_tip_for_input_expression(text, offset);
-                    cell.set_data(move(text));
+                    cell.set_data(String::from_deprecated_string(text).release_value_but_fixme_should_propagate_errors());
                     sheet.update();
                     update();
                 };
@@ -416,7 +416,7 @@ void SpreadsheetWidget::setup_tabs(Vector<NonnullRefPtr<Sheet>> new_sheets)
                     auto offset = m_cell_value_editor->cursor().column();
                     try_generate_tip_for_input_expression(text, offset);
                     for (auto& cell : cells)
-                        cell.set_data(text);
+                        cell.set_data(String::from_deprecated_string(text).release_value_but_fixme_should_propagate_errors());
                     sheet.update();
                     update();
                 }

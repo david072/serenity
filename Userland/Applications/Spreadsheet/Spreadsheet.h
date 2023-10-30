@@ -86,10 +86,10 @@ public:
     Cell const& ensure(Position const& position) const { return const_cast<Sheet*>(this)->ensure(position); }
     Cell& ensure(Position const& position)
     {
-        if (auto cell = at(position))
+        if (auto* cell = at(position))
             return *cell;
 
-        m_cells.set(position, make<Cell>(DeprecatedString::empty(), position, *this));
+        m_cells.set(position, make<Cell>(""_string, position, *this));
         return *at(position);
     }
 

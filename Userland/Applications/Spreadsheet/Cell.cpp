@@ -12,7 +12,7 @@
 
 namespace Spreadsheet {
 
-void Cell::set_data(DeprecatedString new_data)
+void Cell::set_data(String new_data)
 {
     // If we are a formula, we do not save the beginning '=', if the new_data is "" we can simply change our kind
     if (m_kind == Formula && m_data.is_empty() && new_data.is_empty()) {
@@ -24,7 +24,8 @@ void Cell::set_data(DeprecatedString new_data)
         return;
 
     if (new_data.starts_with('=')) {
-        new_data = new_data.substring(1, new_data.length() - 1);
+        // ??
+        new_data = new_data.substring_from_byte_offset(1, new_data.bytes().size() - 1).release_value_but_fixme_should_propagate_errors();
         m_kind = Formula;
     } else {
         m_kind = LiteralString;
@@ -43,9 +44,9 @@ void Cell::set_data(JS::Value new_data)
     StringBuilder builder;
 
     builder.append(new_data.to_string_without_side_effects());
-    m_data = builder.to_deprecated_string();
+    m_data = builder.to_string().release_value_but_fixme_should_propagate_errors();
 
-    m_evaluated_data = move(new_data);
+    m_evaluated_data = new_data;
 }
 
 void Cell::set_type(CellType const* type)
@@ -79,7 +80,7 @@ CellType const& Cell::type() const
         return *m_type;
 
     if (m_kind == LiteralString) {
-        if (m_data.to_int().has_value())
+        if (m_data.to_number<size_t>().has_value())
             return *CellType::get_by_name("Numeric"sv);
     }
 
@@ -163,13 +164,13 @@ JS::Value Cell::js_data()
     return JS::PrimitiveString::create(vm, m_data);
 }
 
-DeprecatedString Cell::source() const
+String Cell::source() const
 {
     StringBuilder builder;
     if (m_kind == Formula)
         builder.append('=');
     builder.append(m_data);
-    return builder.to_deprecated_string();
+    return builder.to_string().release_value_but_fixme_should_propagate_errors();
 }
 
 // FIXME: Find a better way to figure out dependencies

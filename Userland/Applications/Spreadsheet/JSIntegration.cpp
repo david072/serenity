@@ -235,7 +235,7 @@ JS_DEFINE_NATIVE_FUNCTION(SheetGlobalObject::set_real_cell_contents)
         return vm.throw_completion<JS::TypeError>("Expected the second argument of set_real_cell_contents() to be a String"sv);
 
     auto& cell = sheet_object.m_sheet.ensure(position.value());
-    auto new_contents = new_contents_value.as_string().deprecated_string();
+    auto new_contents = new_contents_value.as_string().utf8_string();
     cell.set_data(new_contents);
     return JS::js_null();
 }

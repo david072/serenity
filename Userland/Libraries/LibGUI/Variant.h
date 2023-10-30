@@ -203,20 +203,25 @@ public:
 
     DeprecatedString to_deprecated_string() const
     {
+        return to_string().release_value_but_fixme_should_propagate_errors().to_deprecated_string();
+    }
+
+    ErrorOr<String> to_string() const
+    {
         return visit(
-            [](Empty) -> DeprecatedString { return "[null]"; },
-            [](DeprecatedString v) { return v; },
-            [](Gfx::TextAlignment v) { return DeprecatedString::formatted("Gfx::TextAlignment::{}", Gfx::to_string(v)); },
-            [](Gfx::ColorRole v) { return DeprecatedString::formatted("Gfx::ColorRole::{}", Gfx::to_string(v)); },
-            [](Gfx::AlignmentRole v) { return DeprecatedString::formatted("Gfx::AlignmentRole::{}", Gfx::to_string(v)); },
-            [](Gfx::FlagRole v) { return DeprecatedString::formatted("Gfx::FlagRole::{}", Gfx::to_string(v)); },
-            [](Gfx::MetricRole v) { return DeprecatedString::formatted("Gfx::MetricRole::{}", Gfx::to_string(v)); },
-            [](Gfx::PathRole v) { return DeprecatedString::formatted("Gfx::PathRole::{}", Gfx::to_string(v)); },
-            [](NonnullRefPtr<Gfx::Font const> const& font) { return DeprecatedString::formatted("[Font: {}]", font->name()); },
-            [](NonnullRefPtr<Gfx::Bitmap const> const&) -> DeprecatedString { return "[Gfx::Bitmap]"; },
-            [](GUI::Icon const&) -> DeprecatedString { return "[GUI::Icon]"; },
-            [](Detail::Boolean v) { return DeprecatedString::formatted("{}", v.value); },
-            [](auto const& v) { return DeprecatedString::formatted("{}", v); });
+            [](Empty) -> ErrorOr<String> { return { "[null]"_string }; },
+            [](String v) { return v; },
+            [](Gfx::TextAlignment v) { return String::formatted("Gfx::TextAlignment::{}", Gfx::to_string(v)); },
+            [](Gfx::ColorRole v) { return String::formatted("Gfx::ColorRole::{}", Gfx::to_string(v)); },
+            [](Gfx::AlignmentRole v) { return String::formatted("Gfx::AlignmentRole::{}", Gfx::to_string(v)); },
+            [](Gfx::FlagRole v) { return String::formatted("Gfx::FlagRole::{}", Gfx::to_string(v)); },
+            [](Gfx::MetricRole v) { return String::formatted("Gfx::MetricRole::{}", Gfx::to_string(v)); },
+            [](Gfx::PathRole v) { return String::formatted("Gfx::PathRole::{}", Gfx::to_string(v)); },
+            [](NonnullRefPtr<Gfx::Font const> const& font) { return String::formatted("[Font: {}]", font->name()); },
+            [](NonnullRefPtr<Gfx::Bitmap const> const&) -> ErrorOr<String> { return { "[Gfx::Bitmap]"_string }; },
+            [](GUI::Icon const&) -> ErrorOr<String> { return { "[GUI::Icon]"_string }; },
+            [](Detail::Boolean v) { return String::formatted("{}", v.value); },
+            [](auto const& v) { return String::formatted("{}", v); });
     }
 
     bool operator==(Variant const&) const;

@@ -164,11 +164,8 @@ void Sheet::update(Cell& cell)
 JS::ThrowCompletionOr<JS::Value> Sheet::evaluate(StringView source, Cell* on_behalf_of)
 {
     TemporaryChange cell_change { m_current_cell_being_evaluated, on_behalf_of };
-    auto name = on_behalf_of ? on_behalf_of->name_for_javascript(*this) : "cell <unknown>"sv;
-    auto script_or_error = JS::Script::parse(
-        source,
-        realm(),
-        name);
+    auto name = on_behalf_of ? on_behalf_of->name_for_javascript(*this).release_value_but_fixme_should_propagate_errors() : "cell <unknown>"sv;
+    auto script_or_error = JS::Script::parse(source, realm(), name);
 
     if (script_or_error.is_error())
         return vm().throw_completion<JS::SyntaxError>(TRY_OR_THROW_OOM(vm(), script_or_error.error().first().to_string()));
@@ -311,10 +308,10 @@ Vector<CellChange> Sheet::copy_cells(Vector<Position> from, Vector<Position> to,
     auto copy_to = [&](auto& source_position, Position target_position) {
         auto& target_cell = ensure(target_position);
         auto* source_cell = at(source_position);
-        auto previous_data = target_cell.data();
+        auto previous_data = target_cell.data().to_deprecated_string();
 
         if (!source_cell) {
-            target_cell.set_data("");
+            target_cell.set_data(""_string);
             cell_changes.append(CellChange(target_cell, previous_data));
             return;
         }
@@ -322,8 +319,8 @@ Vector<CellChange> Sheet::copy_cells(Vector<Position> from, Vector<Position> to,
         target_cell.copy_from(*source_cell);
         cell_changes.append(CellChange(target_cell, previous_data));
         if (copy_operation == CopyOperation::Cut && !target_cells.contains_slow(source_position)) {
-            cell_changes.append(CellChange(*source_cell, source_cell->data()));
-            source_cell->set_data("");
+            cell_changes.append(CellChange(*source_cell, source_cell->data().to_deprecated_string()));
+            source_cell->set_data(""_string);
         }
     };
 
@@ -421,7 +418,7 @@ RefPtr<Sheet> Sheet::from_json(JsonObject const& object, Workbook& workbook)
             OwnPtr<Cell> cell;
             switch (kind) {
             case Cell::LiteralString:
-                cell = make<Cell>(obj.get_deprecated_string("value"sv).value_or({}), position, *sheet);
+                cell = make<Cell>(String::from_deprecated_string(obj.get_deprecated_string("value"sv).value_or({})).release_value_but_fixme_should_propagate_errors(), position, *sheet);
                 break;
             case Cell::Formula: {
                 auto& vm = sheet->vm();
@@ -430,7 +427,7 @@ RefPtr<Sheet> Sheet::from_json(JsonObject const& object, Workbook& workbook)
                     warnln("Failed to load previous value for cell {}, leaving as undefined", position.to_cell_identifier(sheet));
                     value_or_error = JS::js_undefined();
                 }
-                cell = make<Cell>(obj.get_deprecated_string("source"sv).value_or({}), value_or_error.release_value(), position, *sheet);
+                cell = make<Cell>(String::from_deprecated_string(obj.get_deprecated_string("source"sv).value_or({})).release_value_but_fixme_should_propagate_errors(), value_or_error.release_value(), position, *sheet);
                 break;
             }
             }
@@ -556,13 +553,13 @@ JsonObject Sheet::to_json() const
         JsonObject data;
         data.set("kind", it.value->kind() == Cell::Kind::Formula ? "Formula" : "LiteralString");
         if (it.value->kind() == Cell::Formula) {
-            data.set("source", it.value->data());
+            data.set("source", it.value->data().to_deprecated_string());
             auto json = realm().global_object().get_without_side_effects("JSON");
             auto stringified_or_error = JS::call(vm(), json.as_object().get_without_side_effects("stringify").as_function(), json, it.value->evaluated_data());
             VERIFY(!stringified_or_error.is_error());
             data.set("value", stringified_or_error.release_value().to_string_without_side_effects().to_deprecated_string());
         } else {
-            data.set("value", it.value->data());
+            data.set("value", it.value->data().to_deprecated_string());
         }
 
         // Set type & meta
@@ -665,7 +662,7 @@ RefPtr<Sheet> Sheet::from_xsv(Reader::XSV const& xsv, Workbook& workbook)
             if (str.is_empty())
                 continue;
             Position position { i, row.index() };
-            auto cell = make<Cell>(str, position, *sheet);
+            auto cell = make<Cell>(String::from_utf8(str).release_value_but_fixme_should_propagate_errors(), position, *sheet);
             sheet->m_cells.set(position, move(cell));
         }
     }
@@ -765,7 +762,7 @@ CellChange::CellChange(Cell& cell, DeprecatedString const& previous_data)
     : m_cell(cell)
     , m_previous_data(previous_data)
 {
-    m_new_data = cell.data();
+    m_new_data = cell.data().to_deprecated_string();
 }
 
 CellChange::CellChange(Cell& cell, CellTypeMetadata const& previous_type_metadata)

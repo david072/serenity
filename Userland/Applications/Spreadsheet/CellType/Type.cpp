@@ -34,7 +34,7 @@ Vector<StringView> CellType::names()
 }
 
 CellType::CellType(StringView name)
-    : m_name(name)
+    : m_name(String::from_utf8(name).release_value_but_fixme_should_propagate_errors())
 {
     VERIFY(!s_cell_types.contains(name));
     s_cell_types.set(name, this);

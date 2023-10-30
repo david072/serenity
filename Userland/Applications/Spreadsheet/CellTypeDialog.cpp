@@ -188,11 +188,11 @@ void CellTypeDialog::setup_tabs(GUI::TabWidget& tabs, Vector<Position> const& po
             checkbox.on_checked = [&](auto checked) {
                 editor.set_enabled(checked);
                 if (!checked)
-                    m_format = DeprecatedString::empty();
+                    m_format = ""_string;
                 editor.set_text(m_format);
             };
             editor.on_change = [&] {
-                m_format = editor.text();
+                m_format = String::from_deprecated_string(editor.text()).release_value_but_fixme_should_propagate_errors();
             };
         }
     }

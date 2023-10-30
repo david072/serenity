@@ -87,7 +87,7 @@ CellType const& Cell::type() const
     return *CellType::get_by_name("Identity"sv);
 }
 
-JS::ThrowCompletionOr<DeprecatedString> Cell::typed_display() const
+JS::ThrowCompletionOr<String> Cell::typed_display() const
 {
     return type().display(const_cast<Cell&>(*this), m_type_metadata);
 }

@@ -95,7 +95,7 @@ struct Cell : public Weakable<Cell> {
         m_conditional_formats = move(fmts);
     }
 
-    JS::ThrowCompletionOr<DeprecatedString> typed_display() const;
+    JS::ThrowCompletionOr<String> typed_display() const;
     JS::ThrowCompletionOr<JS::Value> typed_js_data() const;
 
     CellType const& type() const;

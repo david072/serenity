@@ -442,7 +442,7 @@ RefPtr<Sheet> Sheet::from_json(JsonObject const& object, Workbook& workbook)
                 if (auto value = meta_obj.get_i32("length"sv); value.has_value())
                     meta.length = value.value();
                 if (auto value = meta_obj.get_deprecated_string("format"sv); value.has_value())
-                    meta.format = value.value();
+                    meta.format = String::from_deprecated_string(value.value()).release_value_but_fixme_should_propagate_errors();
                 if (auto value = meta_obj.get_deprecated_string("alignment"sv); value.has_value()) {
                     auto alignment = Gfx::text_alignment_from_string(*value);
                     if (alignment.has_value())
@@ -565,11 +565,11 @@ JsonObject Sheet::to_json() const
         // Set type & meta
         auto& type = it.value->type();
         auto& meta = it.value->type_metadata();
-        data.set("type", type.name());
+        data.set("type", JsonValue(type.name()));
 
         JsonObject metadata_object;
         metadata_object.set("length", meta.length);
-        metadata_object.set("format", meta.format);
+        metadata_object.set("format", JsonValue(meta.format));
         metadata_object.set("alignment", Gfx::to_string(meta.alignment));
         save_format(meta.static_format, metadata_object);
 
@@ -626,7 +626,7 @@ Vector<Vector<DeprecatedString>> Sheet::to_xsv() const
             if (cell) {
                 auto result = cell->typed_display();
                 if (result.has_value())
-                    row[j] = result.value();
+                    row[j] = result.value().to_deprecated_string();
             }
         }
 

@@ -18,19 +18,19 @@ NumericCell::NumericCell()
 {
 }
 
-JS::ThrowCompletionOr<DeprecatedString> NumericCell::display(Cell& cell, CellTypeMetadata const& metadata) const
+JS::ThrowCompletionOr<String> NumericCell::display(Cell& cell, CellTypeMetadata const& metadata) const
 {
-    return propagate_failure(cell, [&]() -> JS::ThrowCompletionOr<DeprecatedString> {
+    return propagate_failure(cell, [&]() -> JS::ThrowCompletionOr<String> {
         auto& vm = cell.sheet().global_object().vm();
         auto value = TRY(js_value(cell, metadata));
-        DeprecatedString string;
+        String string;
         if (metadata.format.is_empty())
-            string = TRY(value.to_deprecated_string(vm));
+            string = TRY(value.to_string(vm));
         else
-            string = format_double(metadata.format.characters(), TRY(value.to_double(vm)));
+            string = TRY(format_double(metadata.format.to_deprecated_string().characters(), TRY(value.to_double(vm))));
 
         if (metadata.length >= 0)
-            return string.substring(0, min(string.length(), metadata.length));
+            return TRY(string.substring_from_byte_offset(0, min(string.bytes().size(), metadata.length)));
 
         return string;
     });

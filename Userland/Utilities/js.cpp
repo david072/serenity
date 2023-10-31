@@ -473,10 +473,10 @@ static ErrorOr<void> repl(JS::Realm& realm)
     return {};
 }
 
-static Function<void()> interrupt_interpreter;
 static void sigint_handler()
 {
-    interrupt_interpreter();
+    if (g_vm)
+        g_vm->bytecode_interpreter().interrupt();
 }
 
 class ReplConsoleClient final : public JS::ConsoleClient {

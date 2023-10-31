@@ -204,6 +204,9 @@ void Interpreter::run_bytecode()
         ThrowCompletionOr<void> result;
 
         while (!pc.at_end()) {
+            if (m_should_exit)
+                break;
+
             auto& instruction = *pc;
 
             switch (instruction.type()) {
@@ -346,6 +349,9 @@ void Interpreter::run_bytecode()
             // the unwind_context will be pop'ed when entering the finally block
             continue;
         }
+
+        if (m_should_exit)
+            break;
 
         if (pc.at_end())
             break;

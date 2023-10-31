@@ -85,6 +85,8 @@ public:
     Span<Value> registers() { return m_current_call_frame; }
     ReadonlySpan<Value> registers() const { return m_current_call_frame; }
 
+    void interrupt() { m_should_exit = true; }
+
 private:
     void run_bytecode();
 
@@ -108,6 +110,8 @@ private:
     Executable* m_current_executable { nullptr };
     BasicBlock const* m_current_block { nullptr };
     Optional<InstructionStreamIterator&> m_pc {};
+
+    bool m_should_exit { false };
 };
 
 extern bool g_dump_bytecode;

@@ -192,17 +192,13 @@ void MapWidget::mousemove_event(GUI::MouseEvent& event)
     set_override_cursor(Gfx::StandardCursor::Arrow);
 
     // Handle marker tooltip hover
-    int center_tile_x = longitude_to_tile_x(m_center.longitude, m_zoom);
-    int center_tile_y = latitude_to_tile_y(m_center.latitude, m_zoom);
-    double offset_x = (longitude_to_tile_x(m_center.longitude, m_zoom) - center_tile_x) * TILE_SIZE;
-    double offset_y = (latitude_to_tile_y(m_center.latitude, m_zoom) - center_tile_y) * TILE_SIZE;
     for (auto const& marker : m_markers) {
         if (!marker.tooltip.has_value())
             continue;
         RefPtr<Gfx::Bitmap> marker_image = marker.image ? marker.image : m_marker_image;
         Gfx::IntRect marker_rect = {
-            static_cast<int>(width() / 2 + (longitude_to_tile_x(marker.latlng.longitude, m_zoom) - center_tile_x) * TILE_SIZE - offset_x) - marker_image->width() / 2,
-            static_cast<int>(height() / 2 + (latitude_to_tile_y(marker.latlng.latitude, m_zoom) - center_tile_y) * TILE_SIZE - offset_y) - marker_image->height(),
+            longitude_to_x(marker.latlng.longitude) - marker_image->width() / 2,
+            latitude_to_y(marker.latlng.latitude) - marker_image->height(),
             marker_image->width(),
             marker_image->height()
         };
@@ -212,6 +208,32 @@ void MapWidget::mousemove_event(GUI::MouseEvent& event)
         }
     }
     GUI::Application::the()->hide_tooltip();
+}
+
+int MapWidget::longitude_to_x(double longitude)
+{
+    double center_tile_x = longitude_to_tile_x(m_center.longitude, m_zoom);
+    double offset_x = (longitude_to_tile_x(m_center.longitude, m_zoom) - center_tile_x) * TILE_SIZE;
+    return static_cast<int>(width() / 2.0 + (longitude_to_tile_x(longitude, m_zoom) - center_tile_x) * TILE_SIZE - offset_x);
+}
+
+int MapWidget::latitude_to_y(double latitude)
+{
+    double center_tile_y = latitude_to_tile_y(m_center.latitude, m_zoom);
+    double offset_y = (latitude_to_tile_y(m_center.latitude, m_zoom) - center_tile_y) * TILE_SIZE;
+    return static_cast<int>(height() / 2.0 + (latitude_to_tile_y(latitude, m_zoom) - center_tile_y) * TILE_SIZE - offset_y);
+}
+
+double MapWidget::x_to_longitude(int x)
+{
+    auto center_tile_x = longitude_to_tile_x(m_center.longitude, m_zoom);
+    return tile_x_to_longitude(center_tile_x + (x - width() / 2.0) / TILE_SIZE, m_zoom);
+}
+
+double MapWidget::y_to_latitude(int y)
+{
+    auto center_tile_y = latitude_to_tile_y(m_center.latitude, m_zoom);
+    return tile_y_to_latitude(center_tile_y + (y - height() / 2.0) / TILE_SIZE, m_zoom);
 }
 
 void MapWidget::mouseup_event(GUI::MouseEvent& event)
@@ -260,8 +282,10 @@ void MapWidget::context_menu_event(GUI::ContextMenuEvent& event)
     if (auto* tool = active_tool(); tool)
         handle_tool_result(tool->context_menu_event(event));
 
-    m_context_menu_latlng = { tile_y_to_latitude(latitude_to_tile_y(m_center.latitude, m_zoom) + static_cast<double>(event.position().y() - height() / 2) / TILE_SIZE, m_zoom),
-        tile_x_to_longitude(longitude_to_tile_x(m_center.longitude, m_zoom) + static_cast<double>(event.position().x() - width() / 2) / TILE_SIZE, m_zoom) };
+    m_context_menu_latlng = {
+        y_to_latitude(event.position().y()),
+        x_to_longitude(event.position().x()),
+    };
 
     m_context_menu = GUI::Menu::construct();
     m_context_menu->add_action(GUI::Action::create(
@@ -302,8 +326,10 @@ void MapWidget::set_zoom_for_mouse_event(int zoom, GUI::MouseEvent& event)
     if (zoom == m_zoom || zoom < ZOOM_MIN || zoom > ZOOM_MAX)
         return;
     if (zoom < m_zoom) {
-        set_center({ tile_y_to_latitude(latitude_to_tile_y(m_center.latitude, m_zoom) - static_cast<double>(event.y() - height() / 2) / TILE_SIZE, m_zoom),
-            tile_x_to_longitude(longitude_to_tile_x(m_center.longitude, m_zoom) - static_cast<double>(event.x() - width() / 2) / TILE_SIZE, m_zoom) });
+        set_center({
+            tile_y_to_latitude(latitude_to_tile_y(m_center.latitude, m_zoom) - static_cast<double>(event.y() - height() / 2) / TILE_SIZE, m_zoom),
+            tile_x_to_longitude(longitude_to_tile_x(m_center.longitude, m_zoom) - static_cast<double>(event.x() - width() / 2) / TILE_SIZE, m_zoom),
+        });
     } else {
         set_center({ tile_y_to_latitude(latitude_to_tile_y(m_center.latitude, zoom) + static_cast<double>(event.y() - height() / 2) / TILE_SIZE, zoom),
             tile_x_to_longitude(longitude_to_tile_x(m_center.longitude, zoom) + static_cast<double>(event.x() - width() / 2) / TILE_SIZE, zoom) });

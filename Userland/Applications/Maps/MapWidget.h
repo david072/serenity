@@ -139,6 +139,11 @@ public:
         update();
     }
 
+    int longitude_to_x(double);
+    int latitude_to_y(double);
+    double x_to_longitude(int);
+    double y_to_latitude(int);
+
 protected:
     MapWidget(Options const&);
 

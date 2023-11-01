@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "ToolStripWidget.h"
+#include "Tools/Tool.h"
 #include <AK/Queue.h>
 #include <LibConfig/Listener.h>
 #include <LibGUI/Action.h>
@@ -130,6 +132,13 @@ public:
         Download,
     };
 
+    void set_tool_strip(RefPtr<ToolStripWidget> widget)
+    {
+        m_tool_strip_widget = move(widget);
+        m_tool_strip_widget->on_tool_selection = [&](Tool*) { update(); };
+        update();
+    }
+
 protected:
     MapWidget(Options const&);
 
@@ -144,6 +153,15 @@ private:
     virtual void mousewheel_event(GUI::MouseEvent&) override;
     virtual void context_menu_event(GUI::ContextMenuEvent& event) override;
     virtual void paint_event(GUI::PaintEvent&) override;
+
+    Tool* active_tool()
+    {
+        if (!m_tool_strip_widget)
+            return nullptr;
+        return m_tool_strip_widget->active_tool();
+    }
+
+    void handle_tool_result(Tool::EventResult);
 
     void set_zoom_for_mouse_event(int zoom, GUI::MouseEvent&);
 
@@ -195,6 +213,8 @@ private:
     OrderedHashMap<TileKey, RefPtr<Gfx::Bitmap>> m_tiles;
     Vector<Marker> m_markers;
     Vector<Panel> m_panels;
+
+    RefPtr<ToolStripWidget> m_tool_strip_widget;
 };
 
 }

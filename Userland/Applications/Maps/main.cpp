@@ -11,6 +11,7 @@
 #include <LibCore/System.h>
 #include <LibDesktop/Launcher.h>
 #include <LibGUI/Action.h>
+#include <LibGUI/ActionGroup.h>
 #include <LibGUI/Application.h>
 #include <LibGUI/BoxLayout.h>
 #include <LibGUI/Icon.h>
@@ -143,6 +144,10 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
     } else {
         hide_favorites_panel(false);
     }
+
+    // Tool strip
+    auto& tool_strip_widget = main_widget.add<Maps::ToolStripWidget>();
+    map_widget.set_tool_strip(tool_strip_widget);
 
     // Main menu actions
     auto file_menu = window->add_menu("&File"_string);

@@ -88,6 +88,17 @@ void MapWidget::set_zoom(int zoom)
     update();
 }
 
+void MapWidget::handle_tool_result(Tool::EventResult result)
+{
+    switch (result) {
+    case Tool::EventResult::None:
+        break;
+    case Tool::EventResult::Update:
+        update();
+        break;
+    }
+}
+
 void MapWidget::config_string_did_change(StringView domain, StringView group, StringView key, StringView value)
 {
     if (domain != "Maps" || group != "MapWidget")
@@ -126,6 +137,9 @@ void MapWidget::config_string_did_change(StringView domain, StringView group, St
 
 void MapWidget::doubleclick_event(GUI::MouseEvent& event)
 {
+    if (auto* tool = active_tool(); tool)
+        handle_tool_result(tool->doubleclick_event(event));
+
     int new_zoom = event.shift() ? m_zoom - 1 : m_zoom + 1;
     set_zoom_for_mouse_event(new_zoom, event);
 }
@@ -134,6 +148,9 @@ void MapWidget::mousedown_event(GUI::MouseEvent& event)
 {
     if (m_connection_failed)
         return;
+
+    if (auto* tool = active_tool(); tool)
+        handle_tool_result(tool->mousedown_event(event));
 
     if (event.button() == GUI::MouseButton::Primary) {
         // Ignore panels click
@@ -153,6 +170,9 @@ void MapWidget::mousemove_event(GUI::MouseEvent& event)
 {
     if (m_connection_failed)
         return;
+
+    if (auto* tool = active_tool(); tool)
+        handle_tool_result(tool->mousemove_event(event));
 
     if (m_dragging) {
         // Adjust map center by mouse delta
@@ -199,6 +219,9 @@ void MapWidget::mouseup_event(GUI::MouseEvent& event)
     if (m_connection_failed)
         return;
 
+    if (auto* tool = active_tool(); tool)
+        handle_tool_result(tool->mouseup_event(event));
+
     // Stop map tiles dragging
     if (m_dragging) {
         m_dragging = false;
@@ -222,6 +245,9 @@ void MapWidget::mousewheel_event(GUI::MouseEvent& event)
     if (m_connection_failed)
         return;
 
+    if (auto* tool = active_tool(); tool)
+        handle_tool_result(tool->mousewheel_event(event));
+
     int new_zoom = event.wheel_delta_y() > 0 ? m_zoom - 1 : m_zoom + 1;
     set_zoom_for_mouse_event(new_zoom, event);
 }
@@ -230,6 +256,9 @@ void MapWidget::context_menu_event(GUI::ContextMenuEvent& event)
 {
     if (!m_context_menu_enabled)
         return;
+
+    if (auto* tool = active_tool(); tool)
+        handle_tool_result(tool->context_menu_event(event));
 
     m_context_menu_latlng = { tile_y_to_latitude(latitude_to_tile_y(m_center.latitude, m_zoom) + static_cast<double>(event.position().y() - height() / 2) / TILE_SIZE, m_zoom),
         tile_x_to_longitude(longitude_to_tile_x(m_center.longitude, m_zoom) + static_cast<double>(event.position().x() - width() / 2) / TILE_SIZE, m_zoom) };
@@ -606,6 +635,9 @@ void MapWidget::paint_event(GUI::PaintEvent& event)
     if (m_scale_enabled)
         paint_scale(painter);
     paint_panels(painter);
+
+    if (auto* tool = active_tool(); tool)
+        tool->paint_event(event, painter);
 }
 
 }

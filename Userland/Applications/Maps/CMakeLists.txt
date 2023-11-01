@@ -16,6 +16,9 @@ set(SOURCES
     MapWidget.cpp
     SearchPanelGML.cpp
     SearchPanel.cpp
+    ToolStripWidget.cpp
+    Tools/Tool.cpp
+    Tools/MeasurementTool.cpp
     UsersMapWidget.cpp
 )
 

@@ -9,6 +9,8 @@
 namespace Maps {
 
 static constexpr int CIRCLE_RADIUS = 4;
+static constexpr int CIRCLE_RADIUS_SQUARED = 16;
+static constexpr int HOVERED_CIRLE_RADIUS = 6;
 static constexpr Color FINAL_COLOR = Gfx::Color::Yellow;
 static constexpr Color CHOOSING_COLOR = Gfx::Color::LightGray;
 
@@ -19,16 +21,19 @@ Tool::EventResult MeasurementTool::doubleclick_event(GUI::MouseEvent&, MapWidget
 
 Tool::EventResult MeasurementTool::mousedown_event(GUI::MouseEvent&, MapWidget&)
 {
+    m_mouse_down = true;
     return Tool::EventResult::None;
 }
 
 Tool::EventResult MeasurementTool::mouseup_event(GUI::MouseEvent& event, MapWidget& map)
 {
-    if (!m_adding_points)
-        return Tool::EventResult::None;
+    m_mouse_down = false;
+    if (m_adding_points) {
+        m_points.append(Point(map.y_to_latitude(event.y()), map.x_to_longitude(event.x())));
+        return Tool::EventResult::Update;
+    }
 
-    m_points.append(Point(map.y_to_latitude(event.y()), map.x_to_longitude(event.x())));
-    return Tool::EventResult::Update;
+    return Tool::EventResult::None;
 }
 
 Tool::EventResult MeasurementTool::mousewheel_event(GUI::MouseEvent&, MapWidget&)
@@ -41,10 +46,34 @@ Tool::EventResult MeasurementTool::context_menu_event(GUI::ContextMenuEvent&, Ma
     return Tool::EventResult::None;
 }
 
-Tool::EventResult MeasurementTool::mousemove_event(GUI::MouseEvent& event, MapWidget&)
+Tool::EventResult MeasurementTool::mousemove_event(GUI::MouseEvent& event, MapWidget& map)
 {
     m_mouse_pos = event.position();
-    return Tool::EventResult::Update;
+
+    if (m_adding_points)
+        return Tool::EventResult::Update;
+
+    if (m_mouse_down && m_hovered_point) {
+        m_hovered_point->set_position(event.position(), map);
+        return Tool::EventResult::SuppressAndUpdate;
+    }
+
+    m_hovered_point = nullptr;
+
+    bool did_change = false;
+    for (auto& point : m_points) {
+        auto pos = point.to_pixel_coords(map);
+        auto dx = pow(event.x() - pos.x(), 2);
+        auto dy = pow(event.y() - pos.y(), 2);
+        auto hovered = dx + dy <= CIRCLE_RADIUS_SQUARED;
+        if (point.hovered != hovered) {
+            point.hovered = hovered;
+            m_hovered_point = &point;
+            did_change = true;
+        }
+    }
+
+    return did_change ? Tool::EventResult::Update : Tool::EventResult::None;
 }
 
 Tool::EventResult MeasurementTool::keyup_event(GUI::KeyEvent& event, MapWidget&)
@@ -75,14 +104,15 @@ void MeasurementTool::paint_event(GUI::PaintEvent&, MapWidget& map, GUI::Painter
     };
 
     for (size_t i = 0; i < m_points.size(); i++) {
-        auto point = m_points[i].to_pixel_coords(map);
+        auto point = m_points[i];
+        auto pos = point.to_pixel_coords(map);
         if (i > 0)
-            painter.draw_line(m_points[i - 1].to_pixel_coords(map), point, FINAL_COLOR);
+            painter.draw_line(m_points[i - 1].to_pixel_coords(map), pos, FINAL_COLOR);
 
         if (i == m_points.size() - 1 && m_adding_points)
-            painter.draw_line(point, m_mouse_pos, CHOOSING_COLOR);
+            painter.draw_line(pos, m_mouse_pos, CHOOSING_COLOR);
 
-        draw_circle(point, CIRCLE_RADIUS, FINAL_COLOR);
+        draw_circle(pos, !point.hovered ? CIRCLE_RADIUS : HOVERED_CIRLE_RADIUS, FINAL_COLOR);
     }
 
     if (m_adding_points)

@@ -33,17 +33,26 @@ private:
     struct Point {
         double latitude;
         double longitude;
+        bool hovered { false };
 
         Gfx::IntPoint to_pixel_coords(MapWidget& map) const
         {
             return Gfx::IntPoint(map.longitude_to_x(longitude), map.latitude_to_y(latitude));
         }
+
+        void set_position(Gfx::IntPoint pos, MapWidget& map)
+        {
+            latitude = map.y_to_latitude(pos.y());
+            longitude = map.x_to_longitude(pos.x());
+        }
     };
 
     Gfx::IntPoint m_mouse_pos;
+    bool m_mouse_down { false };
 
     bool m_adding_points { true };
     Vector<Point> m_points;
+    Point* m_hovered_point;
 };
 
 }

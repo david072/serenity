@@ -21,28 +21,30 @@
 
 namespace Maps {
 
+static int constexpr EARTH_RADIUS = 6371000.0;
+
+struct Coordinate {
+    double latitude;
+    double longitude;
+
+    double distance_to(Coordinate const& other) const;
+};
+
 class MapWidget : public GUI::Frame
     , public Config::Listener {
     C_OBJECT(MapWidget);
 
 public:
-    struct LatLng {
-        double latitude;
-        double longitude;
-
-        double distance_to(LatLng const& other) const;
-    };
-
     struct LatLngBounds {
-        LatLng north_west;
-        LatLng south_east;
+        Coordinate north_west;
+        Coordinate south_east;
 
         int get_zoom() const;
     };
 
     struct Options {
         Optional<String> tile_provider {};
-        LatLng center;
+        Coordinate center;
         int zoom;
         bool context_menu_enabled { true };
         bool scale_enabled { true };
@@ -52,8 +54,8 @@ public:
         Optional<URL> attribution_url {};
     };
 
-    LatLng center() const { return m_center; }
-    void set_center(LatLng const& center)
+    Coordinate center() const { return m_center; }
+    void set_center(Coordinate const& center)
     {
         m_center = {
             min(max(center.latitude, -LATITUDE_MAX), LATITUDE_MAX),
@@ -66,7 +68,7 @@ public:
     void set_zoom(int zoom);
 
     struct Marker {
-        LatLng latlng;
+        Coordinate latlng;
         Optional<String> tooltip {};
         RefPtr<Gfx::Bitmap> image { nullptr };
         Optional<String> name {};
@@ -106,7 +108,7 @@ public:
         update();
     }
 
-    LatLng context_menu_latlng() const { return m_context_menu_latlng; }
+    Coordinate context_menu_latlng() const { return m_context_menu_latlng; }
     void add_context_menu_action(NonnullRefPtr<GUI::Action> const& action)
     {
         m_context_menu_actions.append(action);
@@ -184,7 +186,6 @@ private:
 
     static int constexpr TILE_SIZE = 256;
     static double constexpr LATITUDE_MAX = 85.0511287798066;
-    static int constexpr EARTH_RADIUS = 6371000.0;
     static size_t constexpr TILES_CACHE_MAX = 256;
     static constexpr size_t TILES_DOWNLOAD_PARALLEL_MAX = 8;
     static int constexpr ZOOM_MIN = 2;
@@ -203,11 +204,11 @@ private:
     RefPtr<Gfx::Bitmap> m_marker_image;
     Optional<String> m_tile_provider;
     String m_default_tile_provider;
-    LatLng m_center;
+    Coordinate m_center;
     int m_zoom {};
     bool m_context_menu_enabled {};
     RefPtr<GUI::Menu> m_context_menu;
-    LatLng m_context_menu_latlng;
+    Coordinate m_context_menu_latlng;
     Vector<NonnullRefPtr<GUI::Action>> m_context_menu_actions;
     bool m_scale_enabled {};
     int m_scale_max_width {};

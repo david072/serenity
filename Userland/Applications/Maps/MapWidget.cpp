@@ -48,7 +48,7 @@ static double nice_round_number(double number)
     return pow10 * (d >= 10 ? 10 : (d >= 5 ? 5 : (d >= 3 ? 3 : (d >= 2 ? 2 : 1))));
 }
 
-double MapWidget::LatLng::distance_to(LatLng const& other) const
+double Coordinate::distance_to(Coordinate const& other) const
 {
     return EARTH_RADIUS * 2.0 * asin(sqrt(pow(sin((AK::to_radians(other.latitude) - AK::to_radians(latitude)) / 2.0), 2.0) + cos(AK::to_radians(latitude)) * cos(AK::to_radians(other.latitude)) * pow(sin((AK::to_radians(other.longitude) - AK::to_radians(longitude)) / 2.0), 2.0)));
 }

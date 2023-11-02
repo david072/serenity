@@ -28,7 +28,7 @@ public:
 
     struct Place {
         String name;
-        MapWidget::LatLng latlng;
+        Coordinate latlng;
         int zoom;
     };
     Function<void(Vector<Place> const&)> on_places_change;

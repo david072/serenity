@@ -19,7 +19,7 @@ class FavoritesPanel final : public GUI::Widget {
 public:
     struct Favorite {
         String name;
-        MapWidget::LatLng latlng;
+        Coordinate latlng;
         int zoom;
     };
     static ErrorOr<NonnullRefPtr<FavoritesPanel>> create();

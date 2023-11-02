@@ -43,7 +43,7 @@ private:
 
     struct User {
         String nick;
-        LatLng coordinates;
+        Coordinate coordinates;
         bool contributor;
     };
     Optional<Vector<User>> m_users;

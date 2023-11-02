@@ -96,7 +96,7 @@ void SearchPanel::search(StringView query)
             // FIXME: Handle JSON parsing errors
             auto const& json_place = json_places.at(i).as_object();
 
-            MapWidget::LatLng latlng = { json_place.get_deprecated_string("lat"sv).release_value().to_double().release_value(),
+            Coordinate latlng = { json_place.get_deprecated_string("lat"sv).release_value().to_double().release_value(),
                 json_place.get_deprecated_string("lon"sv).release_value().to_double().release_value() };
             String name = MUST(String::formatted("{}\n{:.5}, {:.5}", json_place.get_deprecated_string("display_name"sv).release_value(), latlng.latitude, latlng.longitude));
 

@@ -34,25 +34,24 @@ public:
 private:
     class Point : public Weakable<Point> {
     public:
-        double latitude;
-        double longitude;
+        Coordinate coordinate;
         bool hovered { false };
 
         Point(double lat, double lng)
-            : latitude(lat)
-            , longitude(lng)
+            : coordinate(Coordinate(lat, lng))
         {
         }
 
         Gfx::IntPoint to_pixel_coords(MapWidget& map) const
         {
-            return Gfx::IntPoint(map.longitude_to_x(longitude), map.latitude_to_y(latitude));
+            return Gfx::IntPoint(map.longitude_to_x(coordinate.longitude), map.latitude_to_y(coordinate.latitude));
         }
 
         void set_position(Gfx::IntPoint pos, MapWidget& map)
         {
-            latitude = map.y_to_latitude(pos.y());
-            longitude = map.x_to_longitude(pos.x());
+            auto lat = map.y_to_latitude(pos.y());
+            auto lng = map.x_to_longitude(pos.x());
+            coordinate = Coordinate(lat, lng);
         }
 
         bool is_hovered_by(Gfx::IntPoint other, MapWidget& map) const

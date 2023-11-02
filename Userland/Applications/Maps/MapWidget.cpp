@@ -138,7 +138,7 @@ void MapWidget::config_string_did_change(StringView domain, StringView group, St
 void MapWidget::doubleclick_event(GUI::MouseEvent& event)
 {
     if (auto* tool = active_tool(); tool)
-        handle_tool_result(tool->doubleclick_event(event));
+        handle_tool_result(tool->doubleclick_event(event, *this));
 
     int new_zoom = event.shift() ? m_zoom - 1 : m_zoom + 1;
     set_zoom_for_mouse_event(new_zoom, event);
@@ -150,7 +150,7 @@ void MapWidget::mousedown_event(GUI::MouseEvent& event)
         return;
 
     if (auto* tool = active_tool(); tool)
-        handle_tool_result(tool->mousedown_event(event));
+        handle_tool_result(tool->mousedown_event(event, *this));
 
     if (event.button() == GUI::MouseButton::Primary) {
         // Ignore panels click
@@ -172,7 +172,7 @@ void MapWidget::mousemove_event(GUI::MouseEvent& event)
         return;
 
     if (auto* tool = active_tool(); tool)
-        handle_tool_result(tool->mousemove_event(event));
+        handle_tool_result(tool->mousemove_event(event, *this));
 
     if (m_dragging) {
         // Adjust map center by mouse delta
@@ -242,7 +242,7 @@ void MapWidget::mouseup_event(GUI::MouseEvent& event)
         return;
 
     if (auto* tool = active_tool(); tool)
-        handle_tool_result(tool->mouseup_event(event));
+        handle_tool_result(tool->mouseup_event(event, *this));
 
     // Stop map tiles dragging
     if (m_dragging) {
@@ -268,7 +268,7 @@ void MapWidget::mousewheel_event(GUI::MouseEvent& event)
         return;
 
     if (auto* tool = active_tool(); tool)
-        handle_tool_result(tool->mousewheel_event(event));
+        handle_tool_result(tool->mousewheel_event(event, *this));
 
     int new_zoom = event.wheel_delta_y() > 0 ? m_zoom - 1 : m_zoom + 1;
     set_zoom_for_mouse_event(new_zoom, event);
@@ -280,7 +280,7 @@ void MapWidget::context_menu_event(GUI::ContextMenuEvent& event)
         return;
 
     if (auto* tool = active_tool(); tool)
-        handle_tool_result(tool->context_menu_event(event));
+        handle_tool_result(tool->context_menu_event(event, *this));
 
     m_context_menu_latlng = {
         y_to_latitude(event.position().y()),
@@ -663,7 +663,7 @@ void MapWidget::paint_event(GUI::PaintEvent& event)
     paint_panels(painter);
 
     if (auto* tool = active_tool(); tool)
-        tool->paint_event(event, painter);
+        tool->paint_event(event, *this, painter);
 }
 
 }

@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "Tool.h"
+#include "../MapWidget.h"
 #include <LibGfx/Forward.h>
 
 namespace Maps {
@@ -19,13 +19,13 @@ public:
 
     virtual StringView tool_name() const override { return "Measure"sv; }
 
-    virtual Tool::EventResult doubleclick_event(GUI::MouseEvent&) override;
-    virtual Tool::EventResult mousemove_event(GUI::MouseEvent&) override;
-    virtual Tool::EventResult mousedown_event(GUI::MouseEvent&) override;
-    virtual Tool::EventResult mouseup_event(GUI::MouseEvent&) override;
-    virtual Tool::EventResult mousewheel_event(GUI::MouseEvent&) override;
-    virtual Tool::EventResult context_menu_event(GUI::ContextMenuEvent&) override;
-    virtual void paint_event(GUI::PaintEvent&, GUI::Painter&) override;
+    virtual Tool::EventResult doubleclick_event(GUI::MouseEvent&, MapWidget&) override;
+    virtual Tool::EventResult mousemove_event(GUI::MouseEvent&, MapWidget&) override;
+    virtual Tool::EventResult mousedown_event(GUI::MouseEvent&, MapWidget&) override;
+    virtual Tool::EventResult mouseup_event(GUI::MouseEvent&, MapWidget&) override;
+    virtual Tool::EventResult mousewheel_event(GUI::MouseEvent&, MapWidget&) override;
+    virtual Tool::EventResult context_menu_event(GUI::ContextMenuEvent&, MapWidget&) override;
+    virtual void paint_event(GUI::PaintEvent&, MapWidget&, GUI::Painter&) override;
 
 private:
     Gfx::IntPoint m_mouse_pos;

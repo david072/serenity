@@ -13,37 +13,37 @@ Tool::Tool()
 {
 }
 
-Tool::EventResult Tool::doubleclick_event(GUI::MouseEvent&)
+Tool::EventResult Tool::doubleclick_event(GUI::MouseEvent&, MapWidget&)
 {
     return Tool::EventResult::None;
 }
 
-Tool::EventResult Tool::mousemove_event(GUI::MouseEvent&)
+Tool::EventResult Tool::mousemove_event(GUI::MouseEvent&, MapWidget&)
 {
     return Tool::EventResult::None;
 }
 
-Tool::EventResult Tool::mousedown_event(GUI::MouseEvent&)
+Tool::EventResult Tool::mousedown_event(GUI::MouseEvent&, MapWidget&)
 {
     return Tool::EventResult::None;
 }
 
-Tool::EventResult Tool::mouseup_event(GUI::MouseEvent&)
+Tool::EventResult Tool::mouseup_event(GUI::MouseEvent&, MapWidget&)
 {
     return Tool::EventResult::None;
 }
 
-Tool::EventResult Tool::mousewheel_event(GUI::MouseEvent&)
+Tool::EventResult Tool::mousewheel_event(GUI::MouseEvent&, MapWidget&)
 {
     return Tool::EventResult::None;
 }
 
-Tool::EventResult Tool::context_menu_event(GUI::ContextMenuEvent&)
+Tool::EventResult Tool::context_menu_event(GUI::ContextMenuEvent&, MapWidget&)
 {
     return Tool::EventResult::None;
 }
 
-void Tool::paint_event(GUI::PaintEvent&, GUI::Painter&)
+void Tool::paint_event(GUI::PaintEvent&, MapWidget&, GUI::Painter&)
 {
 }
 

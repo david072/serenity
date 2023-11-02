@@ -14,6 +14,8 @@
 
 namespace Maps {
 
+class MapWidget;
+
 class Tool {
 public:
     enum class EventResult {
@@ -23,13 +25,13 @@ public:
 
     virtual ~Tool() = default;
 
-    virtual EventResult doubleclick_event(GUI::MouseEvent&);
-    virtual EventResult mousemove_event(GUI::MouseEvent&);
-    virtual EventResult mousedown_event(GUI::MouseEvent&);
-    virtual EventResult mouseup_event(GUI::MouseEvent&);
-    virtual EventResult mousewheel_event(GUI::MouseEvent&);
-    virtual EventResult context_menu_event(GUI::ContextMenuEvent&);
-    virtual void paint_event(GUI::PaintEvent&, GUI::Painter&);
+    virtual EventResult doubleclick_event(GUI::MouseEvent&, MapWidget&);
+    virtual EventResult mousemove_event(GUI::MouseEvent&, MapWidget&);
+    virtual EventResult mousedown_event(GUI::MouseEvent&, MapWidget&);
+    virtual EventResult mouseup_event(GUI::MouseEvent&, MapWidget&);
+    virtual EventResult mousewheel_event(GUI::MouseEvent&, MapWidget&);
+    virtual EventResult context_menu_event(GUI::ContextMenuEvent&, MapWidget&);
+    virtual void paint_event(GUI::PaintEvent&, MapWidget&, GUI::Painter&);
 
     virtual StringView tool_name() const = 0;
 

@@ -20,7 +20,9 @@ class Tool {
 public:
     enum class EventResult {
         None,
-        Update
+        Update,
+        Suppress,
+        SuppressAndUpdate,
     };
 
     virtual ~Tool() = default;

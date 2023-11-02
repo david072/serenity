@@ -169,7 +169,7 @@ private:
         return m_tool_strip_widget->active_tool();
     }
 
-    void handle_tool_result(Tool::EventResult);
+    bool handle_tool_result(Tool::EventResult);
 
     void set_zoom_for_mouse_event(int zoom, GUI::MouseEvent&);
 

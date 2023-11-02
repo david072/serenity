@@ -11,6 +11,8 @@
 
 namespace Maps {
 
+static constexpr int CIRCLE_RADIUS = 4;
+
 class MeasurementTool : public Tool {
 public:
     MeasurementTool() = default;
@@ -30,10 +32,17 @@ public:
     virtual void paint_event(GUI::PaintEvent&, MapWidget&, GUI::Painter&) override;
 
 private:
-    struct Point {
+    class Point : public Weakable<Point> {
+    public:
         double latitude;
         double longitude;
         bool hovered { false };
+
+        Point(double lat, double lng)
+            : latitude(lat)
+            , longitude(lng)
+        {
+        }
 
         Gfx::IntPoint to_pixel_coords(MapWidget& map) const
         {
@@ -45,14 +54,22 @@ private:
             latitude = map.y_to_latitude(pos.y());
             longitude = map.x_to_longitude(pos.x());
         }
+
+        bool is_hovered_by(Gfx::IntPoint other, MapWidget& map) const
+        {
+            return other.distance_from(to_pixel_coords(map)) <= CIRCLE_RADIUS;
+        }
     };
+
+    bool is_dragging() { return m_mouse_down && m_hovered_point.has_value(); }
 
     Gfx::IntPoint m_mouse_pos;
     bool m_mouse_down { false };
 
+    bool m_is_shape { false };
     bool m_adding_points { true };
-    Vector<Point> m_points;
-    Point* m_hovered_point;
+    Vector<NonnullOwnPtr<Point>> m_points;
+    WeakPtr<Point> m_hovered_point;
 };
 
 }

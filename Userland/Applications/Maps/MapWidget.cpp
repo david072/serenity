@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023, Bastiaan van der Plaat <bastiaan.v.d.plaat@gmail.com>
  * Copyright (c) 2023, Jelle Raaijmakers <jelle@gmta.nl>
+ * Copyright (c) 2023, David Ganz <david.g.ganz@gmail.com>
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -79,6 +80,9 @@ MapWidget::MapWidget(Options const& options)
     }
     m_marker_image = Gfx::Bitmap::load_from_file("/res/graphics/maps/marker-blue.png"sv).release_value_but_fixme_should_propagate_errors();
     m_default_tile_provider = MUST(String::from_deprecated_string(Config::read_string("Maps"sv, "MapWidget"sv, "TileProviderUrlFormat"sv, Maps::default_tile_provider_url_format)));
+
+    // necessary for us to receive key events
+    set_focus_policy(GUI::FocusPolicy::StrongFocus);
 }
 
 void MapWidget::set_zoom(int zoom)
@@ -643,6 +647,18 @@ void MapWidget::paint_panels(GUI::Painter& painter)
         Gfx::FloatRect text_rect = { panel.rect.x() + PANEL_PADDING_X, panel.rect.y() + PANEL_PADDING_Y, panel.rect.width(), panel.rect.height() };
         painter.draw_text(text_rect, panel.text, Gfx::TextAlignment::TopLeft, panel_foreground_color);
     }
+}
+
+void MapWidget::keyup_event(GUI::KeyEvent& event)
+{
+    if (auto* tool = active_tool(); tool)
+        handle_tool_result(tool->keyup_event(event, *this));
+}
+
+void MapWidget::keydown_event(GUI::KeyEvent& event)
+{
+    if (auto* tool = active_tool(); tool)
+        handle_tool_result(tool->keydown_event(event, *this));
 }
 
 void MapWidget::paint_event(GUI::PaintEvent& event)

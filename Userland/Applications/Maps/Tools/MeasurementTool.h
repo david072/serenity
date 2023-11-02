@@ -25,10 +25,25 @@ public:
     virtual Tool::EventResult mouseup_event(GUI::MouseEvent&, MapWidget&) override;
     virtual Tool::EventResult mousewheel_event(GUI::MouseEvent&, MapWidget&) override;
     virtual Tool::EventResult context_menu_event(GUI::ContextMenuEvent&, MapWidget&) override;
+    virtual Tool::EventResult keydown_event(GUI::KeyEvent&, MapWidget&) override;
+    virtual Tool::EventResult keyup_event(GUI::KeyEvent&, MapWidget&) override;
     virtual void paint_event(GUI::PaintEvent&, MapWidget&, GUI::Painter&) override;
 
 private:
+    struct Point {
+        double latitude;
+        double longitude;
+
+        Gfx::IntPoint to_pixel_coords(MapWidget& map) const
+        {
+            return Gfx::IntPoint(map.longitude_to_x(longitude), map.latitude_to_y(latitude));
+        }
+    };
+
     Gfx::IntPoint m_mouse_pos;
+
+    bool m_adding_points { true };
+    Vector<Point> m_points;
 };
 
 }

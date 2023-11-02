@@ -31,6 +31,8 @@ public:
     virtual EventResult mouseup_event(GUI::MouseEvent&, MapWidget&);
     virtual EventResult mousewheel_event(GUI::MouseEvent&, MapWidget&);
     virtual EventResult context_menu_event(GUI::ContextMenuEvent&, MapWidget&);
+    virtual EventResult keydown_event(GUI::KeyEvent&, MapWidget&);
+    virtual EventResult keyup_event(GUI::KeyEvent&, MapWidget&);
     virtual void paint_event(GUI::PaintEvent&, MapWidget&, GUI::Painter&);
 
     virtual StringView tool_name() const = 0;

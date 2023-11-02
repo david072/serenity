@@ -68,6 +68,8 @@ ErrorOr<int> serenity_main(Main::Arguments arguments)
     map_widget.set_frame_style(Gfx::FrameStyle::SunkenContainer);
     map_widget.set_show_users(Config::read_bool("Maps"sv, "MapView"sv, "ShowUsers"sv, false));
 
+    window->set_focused_widget(&map_widget);
+
     // Panels
     String init_panel_open_name = TRY(String::from_deprecated_string(Config::read_string("Maps"sv, "Panel"sv, "OpenName"sv, ""sv)));
     int panel_width = Config::read_i32("Maps"sv, "Panel"sv, "Width"sv, INT_MIN);

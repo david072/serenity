@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2023, Bastiaan van der Plaat <bastiaan.v.d.plaat@gmail.com>
  * Copyright (c) 2023, Jelle Raaijmakers <jelle@gmta.nl>
+ * Copyright (c) 2023, David Ganz <david.g.ganz@gmail.com>
  *
  * SPDX-License-Identifier: BSD-2-Clause
  */
@@ -157,6 +158,8 @@ private:
     virtual void mouseup_event(GUI::MouseEvent&) override;
     virtual void mousewheel_event(GUI::MouseEvent&) override;
     virtual void context_menu_event(GUI::ContextMenuEvent& event) override;
+    virtual void keydown_event(GUI::KeyEvent&) override;
+    virtual void keyup_event(GUI::KeyEvent&) override;
     virtual void paint_event(GUI::PaintEvent&) override;
 
     Tool* active_tool()

@@ -38,6 +38,7 @@ public:
     virtual void paint_event(GUI::PaintEvent&, MapWidget&, GUI::Painter&);
 
     virtual StringView tool_name() const = 0;
+    virtual NonnullRefPtr<GUI::Widget> tool_ui() = 0;
 
 protected:
     Tool();

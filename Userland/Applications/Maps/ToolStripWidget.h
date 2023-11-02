@@ -7,6 +7,8 @@
 #pragma once
 
 #include <LibGUI/ActionGroup.h>
+#include <LibGUI/Label.h>
+#include <LibGUI/ScrollableContainerWidget.h>
 #include <LibGUI/Toolbar.h>
 #include <LibGUI/Widget.h>
 
@@ -26,6 +28,14 @@ private:
     explicit ToolStripWidget();
 
     void setup_tools();
+    void show_tool_ui(NonnullRefPtr<GUI::Widget> widget);
+    void hide_tool_ui();
+
+    RefPtr<GUI::Widget> m_tool_ui_widget;
+    RefPtr<GUI::Widget> m_tool_ui_container;
+    RefPtr<GUI::Scrollbar> m_tool_ui_scrollbar;
+    RefPtr<GUI::Label> m_tool_name_label;
+    RefPtr<GUI::Widget> m_tool_ui;
 
     RefPtr<GUI::Toolbar> m_toolbar;
     GUI::ActionGroup m_action_group;

@@ -7,11 +7,29 @@
 #pragma once
 
 #include "../MapWidget.h"
+#include <LibGUI/TextBox.h>
 #include <LibGfx/Forward.h>
 
 namespace Maps {
 
 static constexpr int CIRCLE_RADIUS = 4;
+
+class MeasurementToolUI : public GUI::Frame {
+    C_OBJECT(MeasurementToolUI);
+
+public:
+    void set_is_shape(bool);
+    void set_perimeter_length(double);
+
+private:
+    explicit MeasurementToolUI();
+
+    bool m_is_shape { false };
+
+    double m_perimeter_length { 0 };
+    RefPtr<GUI::Label> m_perimeter_label;
+    RefPtr<GUI::TextBox> m_perimeter_box;
+};
 
 class MeasurementTool : public Tool {
 public:
@@ -20,6 +38,7 @@ public:
     virtual ~MeasurementTool() = default;
 
     virtual StringView tool_name() const override { return "Measure"sv; }
+    virtual NonnullRefPtr<GUI::Widget> tool_ui() override;
 
     virtual Tool::EventResult doubleclick_event(GUI::MouseEvent&, MapWidget&) override;
     virtual Tool::EventResult mousemove_event(GUI::MouseEvent&, MapWidget&) override;
@@ -30,6 +49,8 @@ public:
     virtual Tool::EventResult keydown_event(GUI::KeyEvent&, MapWidget&) override;
     virtual Tool::EventResult keyup_event(GUI::KeyEvent&, MapWidget&) override;
     virtual void paint_event(GUI::PaintEvent&, MapWidget&, GUI::Painter&) override;
+
+    void update_perimeter_length();
 
 private:
     class Point : public Weakable<Point> {
@@ -61,6 +82,8 @@ private:
     };
 
     bool is_dragging() { return m_mouse_down && m_hovered_point.has_value(); }
+
+    RefPtr<MeasurementToolUI> m_ui;
 
     Gfx::IntPoint m_mouse_pos;
     bool m_mouse_down { false };
